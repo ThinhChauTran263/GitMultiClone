@@ -142,16 +142,10 @@
             <input type="text" id="targetFolderInput" class="app-input" data-i18n-placeholder="folderPlaceholder" placeholder="D:\Projects\Repos...">
           </div>
 
-          <!-- Folder Action Buttons -->
+          <!-- Single clean primary folder picker button -->
           <div class="folder-actions-row">
-            <button type="button" class="btn btn-secondary btn-sm" id="btnOpenWebFolderPicker" onclick="openFolderModal()">
-              📂 <span data-i18n="btnBrowseWeb">Duyệt Thư Mục</span>
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btnBrowseWin" onclick="browseFolderWindowsDialog()" title="Mở hộp thoại Windows Folder Browser">
-              🪟 <span data-i18n="btnBrowseWin">Hộp Thoại Windows</span>
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btnOpenExplorer" onclick="openTargetFolder()" title="Mở thư mục trong Windows Explorer">
-              ↗️ <span data-i18n="btnOpenExplorer">Mở Explorer</span>
+            <button type="button" class="btn btn-secondary btn-full" id="btnOpenWebFolderPicker" onclick="openFolderModal()">
+              📂 <span data-i18n="btnBrowseWeb">Duyệt & Chọn Thư Mục</span>
             </button>
           </div>
 
@@ -161,7 +155,6 @@
             <button type="button" class="chip-preset" onclick="applyPreset('default')" data-i18n="presetDefault">Mặc định</button>
             <button type="button" class="chip-preset" onclick="applyPreset('desktop')" data-i18n="presetDesktop">Desktop</button>
             <button type="button" class="chip-preset" onclick="applyPreset('downloads')" data-i18n="presetDownloads">Downloads</button>
-            <button type="button" class="chip-preset" onclick="applyPreset('workspace')" data-i18n="presetWorkspace">Dự án</button>
           </div>
 
           <!-- Status indicator -->
@@ -185,21 +178,21 @@
             <textarea id="repoInputTextarea" class="app-textarea" rows="6" data-i18n-placeholder="inputPlaceholder" placeholder="Dán danh sách link repo vào đây..."></textarea>
           </div>
 
-          <!-- Live input stats -->
-          <div class="input-stats-bar">
+          <!-- Balanced meta bar: Status badge on left, clean Clear button on right -->
+          <div class="textarea-meta-bar">
             <span id="liveInputStatsText" class="stats-badge">0 repos</span>
+            <button type="button" class="btn-clear-link" onclick="clearInput()" title="Xóa toàn bộ nội dung">
+              🧹 <span data-i18n="btnClear">Xóa Hết</span>
+            </button>
           </div>
 
-          <!-- Quick Actions -->
-          <div class="input-tools-row">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="pasteFromClipboard()">
+          <!-- 2 Main Action Buttons: 50% / 50% split, perfectly balanced -->
+          <div class="input-actions-grid">
+            <button type="button" class="btn btn-secondary btn-action-card" onclick="pasteFromClipboard()">
               📋 <span data-i18n="btnPaste">Dán Clipboard</span>
             </button>
-            <button type="button" class="btn btn-outline btn-sm" onclick="loadSampleRepos()">
-              ⚡ <span data-i18n="btnSample">Nạp Link Mẫu Test</span>
-            </button>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="clearInput()">
-              🧹 <span data-i18n="btnClear">Xóa Hết</span>
+            <button type="button" class="btn btn-outline btn-action-card" onclick="loadSampleRepos()">
+              ⚡ <span data-i18n="btnSample">Nạp Link Mẫu</span>
             </button>
           </div>
 

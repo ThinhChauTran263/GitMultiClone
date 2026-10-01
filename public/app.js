@@ -429,7 +429,7 @@ function confirmModalFolderSelection() {
 // Native Windows Folder Browser Dialog (fallback)
 async function browseFolderWindowsDialog() {
   const btn = document.getElementById('btnBrowseWin');
-  btn.disabled = true;
+  if (btn) btn.disabled = true;
   showToast('Đang mở hộp thoại Windows...', 'info');
 
   try {
@@ -443,7 +443,7 @@ async function browseFolderWindowsDialog() {
     }
   } catch (e) {
   } finally {
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
   }
 }
 
