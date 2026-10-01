@@ -1,0 +1,17 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+
+# Python & PyInstaller build artifacts
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.spec
+
+# Runtime downloaded repositories & logs
+downloaded_repos/
+*.log
+
+# Binary executable (Hosted on GitHub Releases)
+GitMultiClone.exe

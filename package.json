@@ -1,0 +1,25 @@
+{
+  "name": "gitmulticlone",
+  "version": "1.0.0",
+  "description": "GitMultiClone - Concurrent, resilient GitHub repository batch cloner",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/test_parser.js && node test/test_clone_resilience.js",
+    "build:exe": "pyinstaller --clean --onefile --name \"GitMultiClone\" --add-data \"public;public\" --distpath dist standalone.py && copy dist\\GitMultiClone.exe .\\GitMultiClone.exe"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ws": "^8.22.0"
+  }
+}

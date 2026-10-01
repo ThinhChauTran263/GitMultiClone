@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitMultiClone • High-Speed GitHub Batch Cloner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- INITIAL LANGUAGE SELECTION MODAL -->
+  <div id="langModal" class="modal-backdrop">
+    <div class="modal-card glass-modal">
+      <div class="modal-head">
+        <div class="modal-badge-icon">🌐</div>
+        <h2 data-i18n="langModalTitle">Chọn Ngôn Ngữ / Select Language</h2>
+        <p data-i18n="langModalSubtitle">Vui lòng chọn ngôn ngữ để bắt đầu sử dụng công cụ</p>
+      </div>
+
+      <div class="modal-lang-grid">
+        <button type="button" class="lang-choice-card" onclick="selectInitialLanguage('vi')">
+          <span class="choice-flag">🇻🇳</span>
+          <div class="choice-texts">
+            <strong class="choice-title">Tiếng Việt</strong>
+            <span class="choice-sub">Giao diện Tiếng Việt</span>
+          </div>
+          <span class="choice-arrow">→</span>
+        </button>
+
+        <button type="button" class="lang-choice-card" onclick="selectInitialLanguage('en')">
+          <span class="choice-flag">🇬🇧</span>
+          <div class="choice-texts">
+            <strong class="choice-title">English</strong>
+            <span class="choice-sub">Continue in English</span>
+          </div>
+          <span class="choice-arrow">→</span>
+        </button>
+      </div>
+
+      <div class="modal-foot">
+        <span data-i18n="langModalDesc">Bạn có thể đổi ngôn ngữ bất kỳ lúc nào ở góc trên màn hình.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUILT-IN FOLDER EXPLORER MODAL (WEB FILE MANAGER) -->
+  <div id="folderModal" class="modal-backdrop">
+    <div class="modal-card glass-modal folder-modal-box">
+      <div class="modal-head-simple">
+        <div class="head-left">
+          <span class="folder-modal-icon">📁</span>
+          <div>
+            <h3 data-i18n="folderModalTitle">Duyệt & Chọn Thư Mục Lưu Trữ</h3>
+            <p data-i18n="folderModalSubtitle">Chọn ổ đĩa và thư mục bạn muốn lưu các repo clone về</p>
+          </div>
+        </div>
+        <button type="button" class="btn-icon-close" onclick="closeFolderModal()">✕</button>
+      </div>
+
+      <!-- Drive selector -->
+      <div class="drive-selector-row">
+        <span class="drive-label" data-i18n="folderModalDrives">Ổ đĩa:</span>
+        <div id="drivePillsContainer" class="drive-pills"></div>
+      </div>
+
+      <!-- Current path & Up button -->
+      <div class="folder-path-bar">
+        <button type="button" class="btn btn-sm btn-secondary" id="btnFolderUp" onclick="navigateFolderUp()">
+          ⬆️ <span data-i18n="btnUpLevel">Lên 1 Cấp</span>
+        </button>
+        <div class="path-display" id="modalCurrentPath">D:\...</div>
+        <button type="button" class="btn btn-sm btn-outline" onclick="promptCreateNewFolder()">
+          ➕ <span data-i18n="btnNewFolder">Tạo Thư Mục</span>
+        </button>
+      </div>
+
+      <!-- Folder list container -->
+      <div class="folder-tree-view" id="folderTreeView">
+        <div class="folder-loading">Đang tải danh sách thư mục...</div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="folder-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeFolderModal()">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="confirmModalFolderSelection()">
+          ✓ <span data-i18n="btnSelectThisFolder">CHỌN THƯ MỤC NÀY</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP WRAPPER -->
+  <div class="app-container">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title" data-i18n="appTitle">GitMultiClone</h1>
+          <p class="brand-subtitle" data-i18n="appSubtitle">Clone hàng loạt tốc độ cao • Tự động đổi tên chống trùng lặp • Bền bỉ không dừng khi lỗi</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="status-indicator online" id="wsStatus">
+          <span class="dot"></span>
+          <span class="status-text" data-i18n="statusConnected">Trực tuyến</span>
+        </div>
+
+        <div class="lang-pills">
+          <button type="button" class="lang-pill" id="btnSwitchVi" onclick="setAppLanguage('vi')">🇻🇳 Tiếng Việt</button>
+          <button type="button" class="lang-pill" id="btnSwitchEn" onclick="setAppLanguage('en')">🇬🇧 English</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2-COLUMN SPLIT DASHBOARD -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN: CONTROLS & SETUP HUB -->
+      <aside class="dashboard-sidebar">
+
+        <!-- CARD 1: TARGET DESTINATION FOLDER -->
+        <div class="panel-box">
+          <div class="panel-title-row">
+            <div class="icon-circle">📂</div>
+            <div>
+              <h3 data-i18n="step1Title">Thư Mục Lưu Trữ</h3>
+              <p data-i18n="step1Desc">Chọn nơi lưu các repository được clone về</p>
+            </div>
+          </div>
+
+          <div class="folder-input-wrap">
+            <input type="text" id="targetFolderInput" class="app-input" data-i18n-placeholder="folderPlaceholder" placeholder="D:\Projects\Repos...">
+          </div>
+
+          <!-- Folder Action Buttons -->
+          <div class="folder-actions-row">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnOpenWebFolderPicker" onclick="openFolderModal()">
+              📂 <span data-i18n="btnBrowseWeb">Duyệt Thư Mục</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btnBrowseWin" onclick="browseFolderWindowsDialog()" title="Mở hộp thoại Windows Folder Browser">
+              🪟 <span data-i18n="btnBrowseWin">Hộp Thoại Windows</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btnOpenExplorer" onclick="openTargetFolder()" title="Mở thư mục trong Windows Explorer">
+              ↗️ <span data-i18n="btnOpenExplorer">Mở Explorer</span>
+            </button>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-row">
+            <span class="preset-label" data-i18n="quickPresets">Lối tắt:</span>
+            <button type="button" class="chip-preset" onclick="applyPreset('default')" data-i18n="presetDefault">Mặc định</button>
+            <button type="button" class="chip-preset" onclick="applyPreset('desktop')" data-i18n="presetDesktop">Desktop</button>
+            <button type="button" class="chip-preset" onclick="applyPreset('downloads')" data-i18n="presetDownloads">Downloads</button>
+            <button type="button" class="chip-preset" onclick="applyPreset('workspace')" data-i18n="presetWorkspace">Dự án</button>
+          </div>
+
+          <!-- Status indicator -->
+          <div id="folderStatusBadge" class="folder-status-pill ready">
+            <span class="dot"></span>
+            <span id="folderStatusText">Thư mục hợp lệ</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: REPOSITORIES INPUT -->
+        <div class="panel-box">
+          <div class="panel-title-row">
+            <div class="icon-circle">🔗</div>
+            <div>
+              <h3 data-i18n="step2Title">Danh Sách GitHub Repo</h3>
+              <p data-i18n="step2Desc">Dán mỗi dòng 1 link hoặc dán nguyên đoạn văn bản bất kỳ</p>
+            </div>
+          </div>
+
+          <div class="textarea-box">
+            <textarea id="repoInputTextarea" class="app-textarea" rows="6" data-i18n-placeholder="inputPlaceholder" placeholder="Dán danh sách link repo vào đây..."></textarea>
+          </div>
+
+          <!-- Live input stats -->
+          <div class="input-stats-bar">
+            <span id="liveInputStatsText" class="stats-badge">0 repos</span>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="input-tools-row">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="pasteFromClipboard()">
+              📋 <span data-i18n="btnPaste">Dán Clipboard</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="loadSampleRepos()">
+              ⚡ <span data-i18n="btnSample">Nạp Link Mẫu Test</span>
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="clearInput()">
+              🧹 <span data-i18n="btnClear">Xóa Hết</span>
+            </button>
+          </div>
+
+          <!-- Options -->
+          <div class="clone-options-box">
+            <div class="option-item">
+              <label for="concurrencySlider" class="option-label" data-i18n="optionConcurrency">Số luồng clone song song:</label>
+              <div class="slider-wrapper">
+                <input type="range" id="concurrencySlider" min="1" max="8" value="3" oninput="updateConcurrencyLabel(this.value)">
+                <span id="concurrencyValue" class="slider-chip">3</span>
+              </div>
+            </div>
+
+            <div class="option-item">
+              <label class="checkbox-container">
+                <input type="checkbox" id="shallowCloneCheckbox" checked>
+                <span class="custom-checkbox"></span>
+                <span class="checkbox-label" data-i18n="optionShallow">Clone nhanh (--depth 1, tiết kiệm dung lượng)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- START / STOP TRIGGER BUTTON -->
+          <div class="trigger-box">
+            <button type="button" class="btn-giant-start" id="btnStartBatch" onclick="startBatchClone()">
+              <span class="giant-icon">🚀</span>
+              <span class="giant-text" data-i18n="btnStartClone">BẮT ĐẦU CLONE TẤT CẢ</span>
+            </button>
+            <button type="button" class="btn-giant-cancel" id="btnCancelBatch" style="display: none;" onclick="cancelBatchClone()">
+              <span>⏹️</span>
+              <span data-i18n="btnCancelClone">DỪNG QUÁ TRÌNH CLONE</span>
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT COLUMN: INTERACTIVE TABS & MONITOR -->
+      <main class="dashboard-main">
+
+        <!-- TAB NAVIGATION -->
+        <div class="tabs-nav-bar">
+          <button type="button" class="tab-btn active" id="tabBtnPreview" onclick="switchTab('preview')">
+            📋 <span data-i18n="tabPreview">Danh Sách & Chống Trùng</span>
+            <span class="tab-count-badge" id="tabBadgePreview">0</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnLive" onclick="switchTab('live')">
+            ⚡ <span data-i18n="tabLive">Tiến Độ Clone Trực Tiếp</span>
+            <span class="tab-count-badge" id="tabBadgeLive" style="display:none;">0%</span>
+          </button>
+          <button type="button" class="tab-btn" id="tabBtnReport" onclick="switchTab('report')">
+            🛡️ <span data-i18n="tabReport">Báo Cáo Tổng Kết & Lỗi</span>
+            <span class="tab-count-badge alert" id="tabBadgeErrors" style="display:none;">0</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: PREVIEW & COLLISION RESOLVER -->
+        <section class="tab-content active" id="tabContentPreview">
+          <div class="collision-info-callout">
+            <div class="callout-icon">🛡️</div>
+            <div class="callout-text" data-i18n="previewNotice">
+              Cơ Chế Chống Trùng Tên: Khi có 2 repo cùng tên (hoặc thư mục đã tồn tại sẵn), hệ thống tự động thêm tên tác giả phía sau (-tác-giả) để không bao giờ bị ghi đè dữ liệu.
+            </div>
+          </div>
+
+          <div id="previewEmptyPlaceholder" class="empty-state-box">
+            <div class="empty-icon">📂</div>
+            <p data-i18n="noReposYet">Chưa có repository nào. Hãy dán link ở cột bên trái hoặc bấm "Nạp Link Mẫu Test".</p>
+          </div>
+
+          <div class="table-card" id="previewTableCard" style="display: none;">
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th width="50" data-i18n="colIndex">#</th>
+                  <th data-i18n="colRepo">Tên Repo</th>
+                  <th data-i18n="colAuthor">Tác Giả</th>
+                  <th data-i18n="colTargetFolder">Thư Mục Lưu</th>
+                  <th data-i18n="colOriginalUrl">Link Clone</th>
+                  <th width="90" data-i18n="colStatus">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="previewTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 2: LIVE MONITOR & PROGRESS BARS -->
+        <section class="tab-content" id="tabContentLive">
+
+          <!-- Overall Progress Box -->
+          <div class="overall-progress-card">
+            <div class="overall-header">
+              <div>
+                <h4 data-i18n="overallProgressTitle">Tiến Độ Tổng Thể</h4>
+                <p id="overallSummaryText" data-i18n="overallProgressSummary">Đang sẵn sàng...</p>
+              </div>
+              <div class="overall-percent" id="overallPercentLabel">0%</div>
+            </div>
+            <div class="main-progress-track">
+              <div class="main-progress-fill" id="overallProgressBar" style="width: 0%;"></div>
+            </div>
+
+            <!-- Metric chips -->
+            <div class="metric-chips-row">
+              <div class="chip success">✓ <span data-i18n="statSuccess">Thành công</span>: <strong id="statSuccessCount">0</strong></div>
+              <div class="chip failed">✕ <span data-i18n="statFailed">Thất bại</span>: <strong id="statFailedCount">0</strong></div>
+              <div class="chip active">⚡ <span data-i18n="statActive">Đang clone</span>: <strong id="statActiveCount">0</strong></div>
+              <div class="chip queued">⏳ <span data-i18n="statRemaining">Đang chờ</span>: <strong id="statQueuedCount">0</strong></div>
+            </div>
+          </div>
+
+          <!-- Empty state when not started -->
+          <div id="liveEmptyPlaceholder" class="empty-state-box">
+            <div class="empty-icon">⚡</div>
+            <p data-i18n="liveWaiting">Bấm nút "BẮT ĐẦU CLONE TẤT CẢ" để bắt đầu tiến trình clone đồng thời.</p>
+          </div>
+
+          <!-- Repo Cards Grid -->
+          <div class="live-repo-grid" id="repoLiveGrid"></div>
+        </section>
+
+        <!-- TAB 3: ERROR REPORT & SUMMARY -->
+        <section class="tab-content" id="tabContentReport">
+          <div class="resilience-info-callout">
+            <div class="callout-icon">🛡️</div>
+            <div class="callout-text" data-i18n="resilienceNotice">
+              Cơ Chế Bền Bỉ Không Dừng: Dù một số repo gặp lỗi, toàn bộ các repo hợp lệ khác vẫn được clone thành công mà không bị dừng lại.
+            </div>
+          </div>
+
+          <!-- Success message box -->
+          <div id="allSuccessContainer" class="success-congrats-card" style="display: none;">
+            <div class="congrats-icon">🎉</div>
+            <h3 id="allSuccessMsg" data-i18n="summaryAllSuccess">Tất cả repo đã được clone thành công!</h3>
+            <button type="button" class="btn btn-primary" onclick="openTargetFolder()" style="margin-top: 1rem;">
+              ↗️ <span data-i18n="btnOpenClonedFolder">Mở Thư Mục Lưu Trữ Trong Explorer</span>
+            </button>
+          </div>
+
+          <!-- Failed repos diagnostic list -->
+          <div id="failedDiagnosticsContainer" style="display: none;">
+            <div class="failed-header-row">
+              <h3 class="failed-title" data-i18n="failedTitle">Chi Tiết & Nguyên Nhân Các Repo Bị Lỗi</h3>
+              <div class="failed-actions">
+                <button type="button" class="btn btn-warning btn-sm" onclick="retryFailedRepos()">
+                  🔄 <span data-i18n="btnRetryFailed">Chỉ Thử Lại Các Repo Lỗi</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openTargetFolder()">
+                  ↗️ <span data-i18n="btnOpenClonedFolder">Mở Explorer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="failed-cards-flow" id="failedCardsList"></div>
+          </div>
+
+          <!-- Empty report placeholder -->
+          <div id="reportEmptyPlaceholder" class="empty-state-box">
+            <div class="empty-icon">📊</div>
+            <p>Chưa có lượt clone nào hoàn tất. Hãy bắt đầu clone để xem báo cáo.</p>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toastContainer" class="toast-stack"></div>
+
+  <!-- SCRIPTS -->
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
